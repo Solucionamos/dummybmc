@@ -6,7 +6,9 @@
 
 """
 
+import sys
 import cherrypy
+import xmlbuilder
 
 
 def check_login(usr=None, pwd=None, cky=None):
@@ -47,7 +49,7 @@ def data(get=None):
 
     check_login(cky=cherrypy.request.cookie)
 
-    return "HAI BRO"
+    return xmlbuilder.build(get)
 
 
 class Server(object):
@@ -60,4 +62,14 @@ root.data.login = login
 
 
 if __name__ == '__main__':
-    cherrypy.quickstart(root, '/')
+    if len(sys.argv) == 1:
+        cherrypy.server.socket_port = 8080
+    elif len(sys.argv) == 2:
+        cherrypy.server.socket_port = int(sys.argv[1])
+    else:
+        print 'wrong number of arguments'
+        exit(1)
+
+    cherrypy.server.socket_host = '0.0.0.0'
+    cherrypy.tree.mount(root, '/')
+    cherrypy.engine.start()
