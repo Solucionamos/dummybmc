@@ -19,7 +19,7 @@ def check_login(usr=None, pwd=None, cky=None):
         user = usr
         passwd = pwd
 
-    if user == 'lenovo' and passwd == 'len0vO':
+    if user == 'lucionamos' and passwd == '6lucio9':
         return True
 
     raise cherrypy.HTTPError(401, 'Authentication failed')
