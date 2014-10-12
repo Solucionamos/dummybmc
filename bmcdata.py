@@ -6,21 +6,15 @@
 
 """
 
+import os
 from collections import defaultdict
 
-data = {'pwState':'<pwState>1</pwState>',
-        'customerSpecificPowerSupplies': '',
-        'customerSpecificPowerUnit': '',
-        'snmpCommunity': '',
-        'snmpTrapDest2Ena': '',
-        'getPEF': '',
-        'fans': '',
-        'voltages': '',
-        'temperatures': '',
-}
-
+XML_DIR = 'xmldata'
 bmc_data = defaultdict(str)
 
-for k in data:
-    bmc_data[k] = data[k]
+for filename in os.listdir(XML_DIR):
+    name, _ = filename.split('.')
+    bmc_data[name] = file(os.path.join(XML_DIR, filename), 'r').read()
+
+# print bmc_data
 
