@@ -22,26 +22,28 @@ def check_login(usr=None, pwd=None, cky=None):
     if user == 'lucionamos' and passwd == '6lucio9':
         return True
 
-    raise cherrypy.HTTPError(401, 'Authentication failed')
+    return False
 
 
 @cherrypy.expose
 def login(user, password, press):
 
-    check_login(usr=user, pwd=password)
+    auth = check_login(usr=user, pwd=password)
 
     cherrypy.response.headers['Content-Type'] = 'text/xml'
-    cky = cherrypy.response.cookie
 
-    cky['user'] = user
-    cky['user']['path'] = '/'
-    cky['user']['max-age'] = 3600
+    if auth:
+        cky = cherrypy.response.cookie
 
-    cky['password'] = password
-    cky['password']['path'] = '/'
-    cky['password']['max-age'] = 3600
+        cky['user'] = user
+        cky['user']['path'] = '/'
+        cky['user']['max-age'] = 3600
 
-    return '<?xml version="1.0" encoding="UTF-8"?><root> <status>ok</status> <authResult>0</authResult> <forwardUrl>index.html</forwardUrl> </root>'
+        cky['password'] = password
+        cky['password']['path'] = '/'
+        cky['password']['max-age'] = 3600
+
+    return xmlbuilder.login(auth)
 
 
 @cherrypy.expose

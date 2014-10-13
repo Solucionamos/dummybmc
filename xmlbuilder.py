@@ -12,16 +12,34 @@
 
 import bmcdata
 
-HEAD = '<root>'
-TAIL = '<status>ok</status></root>'
+HEAD = '_head'
+ROOT = '_root'
+STATUS = '_status'
+TAIL = '_tail'
+AUTH_OK = '_authOK'
+AUTH_ERR = '_authERR'
+
 
 def build(pars):
-    res = ''
+    res = bmcdata.bmc_data[ROOT]
 
     for p in pars.split(','):
         print p
         res += bmcdata.bmc_data[p]
 
-    return HEAD + res + TAIL
+    res += bmcdata.bmc_data[STATUS]
+    res += bmcdata.bmc_data[TAIL]
+
+    return res
+
+
+def login(status):
+    res = bmcdata.bmc_data[HEAD]
+    res = bmcdata.bmc_data[ROOT]
+    res += bmcdata.bmc_data[STATUS]
+    res += bmcdata.bmc_data[AUTH_OK if status else AUTH_ERR]
+    res += bmcdata.bmc_data[TAIL]
+
+    return res
 
 
