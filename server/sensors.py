@@ -13,17 +13,20 @@
 import random
 
 class Sensor(object):
-    def __init__(self, name):
+    def __init__(self, name, units='', val_format='%.5f',
+            lowerNC=None, upperNC=None, lowerCT=None, upperCT=None,
+            lowerNR=None, upperNR=None, mu=0, sigma=1):
         self.status = 'Normal'
         self.name = name
-        self.units = None
-        self.__value_fmt = None
+        self.units = units
+        self.__value_fmt = val_format
         self.reading = None
-        self.non_critical = (None, None)
-        self.critical = (None, None)
-        self.non_recoverable = (None, None)
-        self.__mu = 0
-        self.__sigma = 1
+        self.non_critical = (lowerNC, upperNC)
+        self.critical = (lowerCT, upperCT)
+        self.non_recoverable = (lowerNR, upperNR)
+        self.__mu = mu
+        self.__sigma = sigma
+        self.update()
 
     def __format(self, data):
         ''' formats data according to sensor data format '''
