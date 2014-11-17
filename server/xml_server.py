@@ -14,6 +14,22 @@ import sys
 from server import Server
 
 class XMLServer(Server):
+    def login(self, user, passwd):
+        auth_result = Server.login(self, user, passwd)
+        xmldata = []
+        xmldata.append('<root>')
+        xmldata.append('<status>ok</status>')
+        if auth_result:
+            xmldata.append('<authResult>0</authResult>')
+        else:
+            xmldata.append('<authResult>1</authResult>')
+        xmldata.append('<forwardUrl>index.html</forwardUrl>')
+        if not auth_result:
+            xmldata.append('<errorMsg></errorMsg>')
+        xmldata.append('</root>')
+        return '\n'.join(xmldata)
+
+
     def getTemperatures(self):
         return reduce(lambda x,y: x+y, map(lambda sensor: ['<sensor>'] +
             ['<%s>%s</%s>' % (field,value,field) for field, value in
@@ -53,5 +69,11 @@ class XMLServer(Server):
 if __name__ == '__main__':
     server = XMLServer(sys.argv[1])
     print server.get('temperatures')
+    print
     print server.get('fans')
+    print
     print server.get('voltages')
+    print
+    print server.login('lucio', 'namos')
+    print
+    print server.login('lala', 'lulu')

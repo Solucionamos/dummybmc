@@ -42,6 +42,12 @@ class Server(object):
                     raise Exception('Unrecognized sensor type: ' + sensor_type)
 
 
+    def login(self, user, passwd):
+        if user == self.__user and passwd == self.__passwd:
+            return True
+        return False
+
+
     def getTemperatures(self):
         return map(lambda x: x.data(), self.__temperatures)
 
