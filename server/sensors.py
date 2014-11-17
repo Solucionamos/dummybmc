@@ -1,16 +1,13 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
-#
-# Copyright © 2014 gm <gm@PONTADATELHA>
-#
-# Distributed under terms of the MIT license.
 
 """
 
 """
 
 import random
+from collections import OrderedDict
 
 class Sensor(object):
     def __init__(self, name, units='', val_format='%.5f',
@@ -62,11 +59,11 @@ class Sensor(object):
 
     def data(self):
         ''' generate sensor representation '''
-        sensor = {}
+        sensor = OrderedDict()
+        sensor['sensorStatus'] = self.status
         sensor['name'] = self.name
-        sensor['status'] = self.status
-        sensor['units'] = self.units
         sensor['reading'] = self.__format(self.reading)
+        sensor['units'] = self.units
         lower, upper = self.non_critical
         sensor['lowerNC'] = self.__format(lower)
         sensor['upperNC'] = self.__format(upper)
