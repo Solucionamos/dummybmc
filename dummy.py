@@ -47,11 +47,14 @@ def login(user, password, press):
 
 
 @cherrypy.expose
-def data(get=None):
+def data(get=None, set=None):
 
     check_login(cky=cherrypy.request.cookie)
 
-    return xmlbuilder.build(get)
+    if not set:
+        return xmlbuilder.build(get)
+    else:
+        return ''
 
 
 class Server(object):
