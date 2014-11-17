@@ -11,68 +11,54 @@
 """
 
 import sys
+import xml.etree.ElementTree as ET
 from server import Server
+
+def add_subelement(parent, name, text=' '):
+    subelement = ET.SubElement(parent, name)
+    subelement.text = text
+    return subelement
+
 
 class XMLServer(Server):
     def login(self, user, passwd):
         auth_result = Server.login(self, user, passwd)
-        xmldata = []
-        xmldata.append('<root>')
-        xmldata.append('<status>ok</status>')
-        if auth_result:
-            xmldata.append('<authResult>0</authResult>')
-        else:
-            xmldata.append('<authResult>1</authResult>')
-        xmldata.append('<forwardUrl>index.html</forwardUrl>')
+        root = ET.Element('root')
+        add_subelement(root, 'status', 'ok')
+        add_subelement(root, 'authResult', '0' if auth_result else '1')
+        add_subelement(root, 'forwardUrl', 'index.html')
         if not auth_result:
-            xmldata.append('<errorMsg></errorMsg>')
-        xmldata.append('</root>')
-        return '\n'.join(xmldata)
+            add_subelement(root, 'errorMsg')
+        return ET.tostring(root)
 
 
-    def getTemperatures(self):
-        return reduce(lambda x,y: x+y, map(lambda sensor: ['<sensor>'] +
-            ['<%s>%s</%s>' % (field,value,field) for field, value in
-                sensor.iteritems()] + ['</sensor>'], Server.getTemperatures(self)))
+    def getSensors(self, sensor_type):
+        sensors = ET.Element('thresholdSensorList')
 
-
-    def getFans(self):
-        return reduce(lambda x,y: x+y, map(lambda sensor: ['<sensor>'] +
-            ['<%s>%s</%s>' % (field,value,field) for field, value in
-                sensor.iteritems()] + ['</sensor>'], Server.getFans(self)))
-
-
-    def getVoltages(self):
-        return reduce(lambda x,y: x+y, map(lambda sensor: ['<sensor>'] +
-            ['<%s>%s</%s>' % (field,value,field) for field, value in
-                sensor.iteritems()] + ['</sensor>'], Server.getVoltages(self)))
-
-
-    def get(self, field):
-        xmldata = []
-        xmldata.append('<root>')
-        xmldata.append('<thresholdSensorList>')
-        if field == 'temperatures':
-            xmldata.extend(self.getTemperatures())
-        elif field == 'fans':
-            xmldata.extend(self.getFans())
-        elif field == 'voltages':
-            xmldata.extend(self.getVoltages())
+        if sensor_type == 'temperatures':
+            sensor_data = Server.getTemperatures(self)
+        elif sensor_type == 'fans':
+            sensor_data = Server.getFans(self)
+        elif sensor_type == 'voltages':
+            sensor_data = Server.getVoltages(self)
         else:
             raise Exception('Field not implemented: ' + field)
-        xmldata.append('</thresholdSensorList>')
-        xmldata.append('<status>ok</status>')
-        xmldata.append('</root>')
-        return '\n'.join(xmldata)
+
+        for sensor_dict in sensor_data:
+            sensor = ET.SubElement(sensors, 'sensor')
+            [add_subelement(sensor, field, value) for field, value
+                    in sensor_dict.iteritems()]
+
+        return sensors
 
 
 if __name__ == '__main__':
     server = XMLServer(sys.argv[1])
-    print server.get('temperatures')
+    print ET.tostring(server.getSensors('temperatures'))
     print
-    print server.get('fans')
+    print ET.tostring(server.getSensors('fans'))
     print
-    print server.get('voltages')
+    print ET.tostring(server.getSensors('voltages'))
     print
     print server.login('lucio', 'namos')
     print
