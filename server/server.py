@@ -20,6 +20,8 @@ class Server(object):
         self.__temperatures = []
         self.__fans = []
         self.__voltages = []
+        self.__pwState = '1'
+        self.__sensorTypes = ['temperatures', 'fans', 'voltages']
         self.init_sensors(sensor_data_file)
 
 
@@ -58,6 +60,10 @@ class Server(object):
 
     def getVoltages(self):
         return map(lambda x: x.data(), self.__voltages)
+
+
+    def getPwState(self):
+        return self.__pwState
 
 
 if __name__ == '__main__':

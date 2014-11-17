@@ -52,13 +52,33 @@ class XMLServer(Server):
         return sensors
 
 
+    def getPwState(self):
+        pwState = ET.Element('pwState')
+        pwState.text = Server.getPwState(self)
+        return pwState
+
+
+    def get(self, parameter):
+        root = ET.Element('root')
+        if parameter == 'pwState':
+            root.append(self.getPwState())
+        elif parameter in self._Server__sensorTypes:
+            root.append(self.getSensors(parameter))
+        else:
+            raise Exception('Unrecognized parameter: ' + parameter)
+        add_subelement(root, 'status', 'ok')
+        return ET.tostring(root)
+
+
 if __name__ == '__main__':
     server = XMLServer(sys.argv[1])
-    print ET.tostring(server.getSensors('temperatures'))
+    print server.get('temperatures')
     print
-    print ET.tostring(server.getSensors('fans'))
+    print server.get('fans')
     print
-    print ET.tostring(server.getSensors('voltages'))
+    print server.get('voltages')
+    print
+    print server.get('pwState')
     print
     print server.login('lucio', 'namos')
     print
