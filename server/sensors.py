@@ -48,7 +48,7 @@ class Sensor(object):
     def __format(self, data):
         ''' formats data according to sensor data format '''
         if data:
-            return self.__value_fmt % data
+            return self.__value_fmt % float(data)
         return 'N/A'
 
 
