@@ -44,7 +44,7 @@ class Server(object):
                     raise Exception('Unrecognized sensor type: ' + sensor_type)
 
 
-    def login(self, user, passwd):
+    def check_login(self, user, passwd):
         if user == self.__user and passwd == self.__passwd:
             return True
         return False

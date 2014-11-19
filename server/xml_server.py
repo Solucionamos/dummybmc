@@ -22,7 +22,7 @@ def add_subelement(parent, name, text=' '):
 
 class XMLServer(Server):
     def login(self, user, passwd):
-        auth_result = Server.login(self, user, passwd)
+        auth_result = Server.check_login(self, user, passwd)
         root = ET.Element('root')
         add_subelement(root, 'status', 'ok')
         add_subelement(root, 'authResult', '0' if auth_result else '1')
