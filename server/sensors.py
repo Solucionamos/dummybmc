@@ -59,6 +59,7 @@ class Sensor(object):
 
     def data(self):
         ''' generate sensor representation '''
+        self.update() # Updates sensor data before new reading
         sensor = OrderedDict()
         sensor['sensorStatus'] = self.status
         sensor['name'] = self.name
