@@ -9,6 +9,15 @@
 import random
 from collections import OrderedDict
 
+def _in(value, interval):
+    lower, upper = interval
+    if lower and value < lower:
+        return False
+    if upper and upper < value:
+        return False
+    return True
+
+
 class Sensor(object):
     def __init__(self, name, units='', val_format='%.5f',
             lowerNC=None, upperNC=None, lowerCT=None, upperCT=None,
@@ -55,6 +64,16 @@ class Sensor(object):
     def update(self):
         ''' update sensor reading '''
         self.reading = random.gauss(self.__mu, self.__sigma)
+        if not _in(self.reading, self.non_recoverable):
+            # something terrible happened, we don't know what a true server
+            # would use as status in this case...
+            self.status = 'Catastrophe'
+        elif not _in(self.reading, self.critical):
+            self.status = 'Critical'
+        elif not _in(self.reading, self.non_critical):
+            self.status = 'Warning'
+        else:
+            self.status = 'Normal'
 
 
     def data(self):
@@ -108,3 +127,5 @@ if __name__ == '__main__':
     print volt1.data()
     volt2 = VoltageSensor('volt2', lowerCT=4, upperCT=6)
     print volt2.data()
+    while volt2.status != 'Critical':
+        print volt2.data()
