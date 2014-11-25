@@ -15,6 +15,7 @@ class HttpConnection(object):
         cherrypy.server.socket_host = '0.0.0.0'
         cherrypy.tree.mount(self.data, '/data')
         cherrypy.tree.mount(self.login, '/data/login')
+        cherrypy.tree.mount(self.logout, '/data/logout')
         cherrypy.engine.start()
 
 
@@ -45,6 +46,11 @@ class HttpConnection(object):
             return 'Not implemented\n' # TODO: implement set= on server
         else:
             return self.__server.get(get)
+
+
+    @cherrypy.expose
+    def logout(self):
+        raise cherrypy._cperror.HTTPRedirect('/login.html', status=302)
 
 
     def __check_auth(self, cookie):
