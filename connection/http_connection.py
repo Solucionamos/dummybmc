@@ -50,7 +50,7 @@ class HttpConnection(object):
 
     @cherrypy.expose
     def logout(self):
-        raise cherrypy._cperror.HTTPRedirect('/login.html', status=302)
+        return 'Not implemented\n'
 
 
     def __check_auth(self, cookie):
