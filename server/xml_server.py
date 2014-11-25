@@ -44,6 +44,9 @@ class XMLServer(Server):
         else:
             raise Exception('Field not implemented: ' + field)
 
+        if not sensor_data:
+            return None
+
         for sensor_dict in sensor_data:
             sensor = ET.SubElement(sensors, 'sensor')
             [add_subelement(sensor, field, value) for field, value
@@ -63,7 +66,9 @@ class XMLServer(Server):
         if parameter == 'pwState':
             root.append(self.getPwState())
         elif parameter in self._Server__sensorTypes:
-            root.append(self.getSensors(parameter))
+            sensor_data = self.getSensors(parameter)
+            if sensor_data:
+                root.append(sensor_data)
         else:
             raise Exception('Unrecognized parameter: ' + parameter)
         add_subelement(root, 'status', 'ok')

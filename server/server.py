@@ -13,6 +13,12 @@
 import sys, csv
 import sensors
 
+# Power states
+OFF = 0
+ON = 1
+RESET = 2
+HARD_RESET = 3
+
 class Server(object):
     def __init__(self, sensor_data_file, user='lucio', passwd='namos'):
         self.__user = user
@@ -20,7 +26,7 @@ class Server(object):
         self.__temperatures = []
         self.__fans = []
         self.__voltages = []
-        self.__pwState = '1'
+        self.__pwState = ON
         self.__sensorTypes = ['temperatures', 'fans', 'voltages']
         self.init_sensors(sensor_data_file)
 
@@ -51,19 +57,22 @@ class Server(object):
 
 
     def getTemperatures(self):
-        return map(lambda x: x.data(), self.__temperatures)
+        if self.__pwState == ON:
+            return map(lambda x: x.data(), self.__temperatures)
 
 
     def getFans(self):
-        return map(lambda x: x.data(), self.__fans)
+        if self.__pwState == ON:
+            return map(lambda x: x.data(), self.__fans)
 
 
     def getVoltages(self):
-        return map(lambda x: x.data(), self.__voltages)
+        if self.__pwState == ON:
+            return map(lambda x: x.data(), self.__voltages)
 
 
     def getPwState(self):
-        return self.__pwState
+        return str(self.__pwState)
 
 
 if __name__ == '__main__':

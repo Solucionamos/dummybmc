@@ -40,7 +40,7 @@ class HttpConnection(object):
         auth = self.__check_auth(cherrypy.request.cookie)
 
         if not auth:
-            return 'Authentication failed\n' # TODO: return proper response
+            raise cherrypy.HTTPError(401)
 
         if set:
             return 'Not implemented\n' # TODO: implement set= on server
