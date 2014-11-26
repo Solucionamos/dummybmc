@@ -10,7 +10,7 @@ import random
 from collections import OrderedDict
 
 def _in(value, interval):
-    lower, upper = interval
+    lower, upper = map(lambda v: v and float(v), interval)
     if lower and value < lower:
         return False
     if upper and upper < value:
