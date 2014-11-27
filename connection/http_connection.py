@@ -43,7 +43,9 @@ class HttpConnection(object):
             raise cherrypy.HTTPError(401)
 
         if set:
-            return 'Not implemented\n' # TODO: implement set= on server
+            parameter, value = set.split(':')
+            if parameter == 'pwState':
+                return self.__server.setPwState(int(value))
         else:
             return self.__server.get(get)
 

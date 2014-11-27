@@ -76,8 +76,8 @@ class Server(object):
 
 
     def getPwState(self):
-        return str(self.__pwState)
         self.__rebootPause()
+        return str(self.__pwState)
 
 
     def setPwState(self, state):
