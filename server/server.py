@@ -27,6 +27,7 @@ class Server(object):
         self.__fans = []
         self.__voltages = []
         self.__pwState = ON
+        self.__rebootCount = 0
         self.__sensorTypes = ['temperatures', 'fans', 'voltages']
         self.init_sensors(sensor_data_file)
 
@@ -59,20 +60,48 @@ class Server(object):
     def getTemperatures(self):
         if self.__pwState == ON:
             return map(lambda x: x.data(), self.__temperatures)
+        self.__rebootPause()
 
 
     def getFans(self):
         if self.__pwState == ON:
             return map(lambda x: x.data(), self.__fans)
+        self.__rebootPause()
 
 
     def getVoltages(self):
         if self.__pwState == ON:
             return map(lambda x: x.data(), self.__voltages)
+        self.__rebootPause()
 
 
     def getPwState(self):
         return str(self.__pwState)
+        self.__rebootPause()
+
+
+    def setPwState(self, state):
+        if state not in (OFF, ON, RESET, HARD_RESET):
+            raise Exception('Unrecognized state: ' + state)
+        if state in (RESET, HARD_RESET):
+            if self.__pwState == OFF:
+                return False
+            elif self.__pwState == ON:
+                self.__pwState = OFF
+                self.__rebootCount = 4 if state == RESET else 8
+                return True
+        if state == OFF and self.__pwState == ON:
+            self.__pwState = OFF
+        if state == ON and self.__pwState == OFF:
+            self.__pwState = ON
+        return True
+
+
+    def __rebootPause(self):
+        if self.__rebootCount:
+            self.__rebootCount -= 1
+            if self.__rebootCount == 0:
+                self.__pwState = ON
 
 
 if __name__ == '__main__':

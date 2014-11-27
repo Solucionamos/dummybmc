@@ -75,6 +75,16 @@ class XMLServer(Server):
         return ET.tostring(root)
 
 
+    def setPwState(self, state):
+        root = ET.Element('root')
+        if Server.setPwState(self, state):
+            add_subelement(root, 'status', 'ok')
+        else:
+            add_subelement(root, 'status', 'ProcessingError')
+            add_subelement(root, 'errorMsg', 'Error while setting new values.')
+        return ET.tostring(root)
+
+
 if __name__ == '__main__':
     server = XMLServer(sys.argv[1])
     print server.get('temperatures')
@@ -88,3 +98,13 @@ if __name__ == '__main__':
     print server.login('lucio', 'namos')
     print
     print server.login('lala', 'lulu')
+    print
+    print server.setPwState(0)
+    print
+    print server.get('pwState')
+    print
+    print server.get('temperatures')
+    print
+    print server.setPwState(3)
+    print
+    print server.get('pwState')
