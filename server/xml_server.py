@@ -1,13 +1,9 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
-#
-# Copyright © 2014 gm <gm@PONTADATELHA>
-#
-# Distributed under terms of the MIT license.
 
-"""
-
+""" Server implementation that generates data in XML format. Employs the
+    ElementTree module for XML generation.
 """
 
 import sys
@@ -15,6 +11,9 @@ import xml.etree.ElementTree as ET
 from server import Server
 
 def add_subelement(parent, name, text=' '):
+    """ Helper function. Adds a subelement with a given name and an optional
+        text to a parent element.
+    """
     subelement = ET.SubElement(parent, name)
     subelement.text = text
     return subelement
@@ -22,6 +21,9 @@ def add_subelement(parent, name, text=' '):
 
 class XMLServer(Server):
     def login(self, user, passwd):
+        """ Authenticates the provided user and password, and generates the
+            login response.
+        """
         auth_result = Server.check_login(self, user, passwd)
         root = ET.Element('root')
         add_subelement(root, 'status', 'ok')
@@ -33,6 +35,9 @@ class XMLServer(Server):
 
 
     def getSensors(self, sensor_type):
+        """ Wrapper method that generates XML for requests of sensor data.
+            Outputs data from all the sensors of given sensor_type.
+        """
         sensors = ET.Element('thresholdSensorList')
 
         if sensor_type == 'temperatures':
@@ -56,12 +61,16 @@ class XMLServer(Server):
 
 
     def getPwState(self):
+        """ Wrapper method for power state requests. """
         pwState = ET.Element('pwState')
         pwState.text = Server.getPwState(self)
         return pwState
 
 
     def get(self, parameter):
+        """ Main method for get requests. Builds XML root and calls the
+            appropriate wrapper method for its content.
+        """
         root = ET.Element('root')
         if parameter == 'pwState':
             root.append(self.getPwState())
@@ -76,6 +85,7 @@ class XMLServer(Server):
 
 
     def setPwState(self, state):
+        """ Main power management method. Alters the server's power state. """
         root = ET.Element('root')
         if Server.setPwState(self, state):
             add_subelement(root, 'status', 'ok')

@@ -2,14 +2,17 @@
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 
-"""
-
+""" Implements a standard Sensor class, and a few specializations which consist
+    of pre-set values for some attributes.
 """
 
 import random
 from collections import OrderedDict
 
 def _in(value, interval):
+    """ checks if a float value lies within an interval. Interval bounds
+        may be float numbers represented as strings, or None.
+    """
     lower, upper = map(lambda v: v and float(v), interval)
     if lower and value < lower:
         return False
@@ -19,6 +22,11 @@ def _in(value, interval):
 
 
 class Sensor(object):
+    """ Base Sensor implementation. Must have a name set on creation.
+        Optional lower and upper bounds for non-critical (NC), critical (CT)
+        and non-recoverable (NR) values may be provided, and if present will
+        be used to shape the value distribution of sensor data.
+    """
     def __init__(self, name, units='', val_format='%.5f',
             lowerNC=None, upperNC=None, lowerCT=None, upperCT=None,
             lowerNR=None, upperNR=None, _low=0, _high=10):
@@ -49,20 +57,29 @@ class Sensor(object):
         else:
             high = float(_high)
 
+        """ low and high determine the shape of the normal distribution used
+            for sensor reading update. It will be centered on the average of
+            the two values, and the distance between the average and the bounds
+            will be 3 standard deviations, causing ~99.7% of generated readings
+            to fall within the bounds.
+        """
+
         self.__mu = (low + high) / 2
         self.__sigma = (high - self.__mu) / 3
         self.update()
 
 
     def __format(self, data):
-        ''' formats data according to sensor data format '''
+        """ Formats data according to sensor data format """
         if data:
             return self.__value_fmt % float(data)
         return 'N/A'
 
 
     def update(self):
-        ''' update sensor reading '''
+        """ Updates sensor reading. Employs a normal distribution taking into
+            account the sensor's value bounds.
+        """
         self.reading = random.gauss(self.__mu, self.__sigma)
         if not _in(self.reading, self.non_recoverable):
             # something terrible happened, we don't know what a true server
@@ -77,7 +94,7 @@ class Sensor(object):
 
 
     def data(self):
-        ''' generate sensor representation '''
+        """ Generates sensor representation, as an Ordered Dict. """
         self.update() # Updates sensor data before new reading
         sensor = OrderedDict()
         sensor['sensorStatus'] = self.status
@@ -97,18 +114,25 @@ class Sensor(object):
 
 
 class TemperatureSensor(Sensor):
+    """ Temperature sensor has integer readings and limits. Value unit is
+        degrees Celsius.
+    """
     def __init__(self, name, **limits):
         Sensor.__init__(self, name, units='C', val_format='%d',
                 _low=0, _high=100, **limits)
 
 
 class FanSensor(Sensor):
+    """ Fan sensor has integer readings and limits. Value unit is RPM. """
     def __init__(self, name, **limits):
         Sensor.__init__(self, name, units='RPM', val_format='%d',
                 _low=10, _high=5000, **limits)
 
 
 class VoltageSensor(Sensor):
+    """ Voltage sensor has float readings and limits, with 5 decimal digits of
+        precision. Value unit is Volts.
+    """
     def __init__(self, name, **limits):
         Sensor.__init__(self, name, units='V', val_format='%.5f',
                 _low=0, _high=10, **limits)

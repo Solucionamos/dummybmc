@@ -1,13 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
-#
-# Copyright © 2014 gm <gm@PONTADATELHA>
-#
-# Distributed under terms of the MIT license.
 
-"""
-
+""" Base Server implementation. Must be specialized for custom data formats.
 """
 
 import sys, csv
@@ -33,6 +28,18 @@ class Server(object):
 
 
     def init_sensors(self, sensor_data_file):
+        """ Creates all server's sensors from data contained in the CSV on
+            sensor_data_file. CSV format must be as follows (fields with * are
+            optional):
+                type (currently [temperature|fan|voltage])
+                name
+                *lower non-recoverable bound
+                *lower critical bound
+                *lower non-critical bound
+                *upper non-critical bound
+                *upper critical bound
+                *upper non-recoverable bound
+        """
         with open(sensor_data_file, 'r') as sensor_data:
             reader = csv.DictReader(sensor_data, ['type', 'name', 'lowerNR',
                 'lowerCT', 'lowerNC', 'upperNC', 'upperCT', 'upperNR'])
@@ -52,35 +59,43 @@ class Server(object):
 
 
     def check_login(self, user, passwd):
+        """ Validates provided user and password values according to the ones
+            set on creation.
+        """
         if user == self.__user and passwd == self.__passwd:
             return True
         return False
 
 
     def getTemperatures(self):
+        """ Generates data from all temperature sensors. """
         if self.__pwState == ON:
             return map(lambda x: x.data(), self.__temperatures)
         self.__rebootPause()
 
 
     def getFans(self):
+        """ Generates data from all fan sensors. """
         if self.__pwState == ON:
             return map(lambda x: x.data(), self.__fans)
         self.__rebootPause()
 
 
     def getVoltages(self):
+        """ Generates data from all voltage sensors. """
         if self.__pwState == ON:
             return map(lambda x: x.data(), self.__voltages)
         self.__rebootPause()
 
 
     def getPwState(self):
+        """ Generates power state data. """
         self.__rebootPause()
         return str(self.__pwState)
 
 
     def setPwState(self, state):
+        """ Alter server's power state. """
         if state not in (OFF, ON, RESET, HARD_RESET):
             raise Exception('Unrecognized state: ' + state)
         if state in (RESET, HARD_RESET):
@@ -98,6 +113,10 @@ class Server(object):
 
 
     def __rebootPause(self):
+        """ Simulates the time needed for server reboot. Currently, a normal
+            reset will keep the server off for the next 4 "get" method calls,
+            and a hard reset, 8.
+        """
         if self.__rebootCount:
             self.__rebootCount -= 1
             if self.__rebootCount == 0:

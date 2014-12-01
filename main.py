@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 
-"""
-
+""" Main script. Executes the XML Server implementation with an HTTP
+    connection and default parameters.
 """
 
 from server import xml_server
