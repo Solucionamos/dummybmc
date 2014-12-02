@@ -12,8 +12,9 @@ XML format and connections are performed through an HTTP REST interface.
 Running
 =======
 
-``$ python main.py``
+``$ python main.py [port]``
 
 Will execute the XMLServer implementation with sensor setup as provided in
-server/sensor\_data.csv.
+server/sensor\_data.csv. Optional argument port sets the port on which the
+server will listen to requests, defaults to 8080.
 
